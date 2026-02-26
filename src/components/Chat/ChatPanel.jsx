@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import ChatMessage from './ChatMessage'
 import ChatInput from './ChatInput'
+import ModelPicker from './ModelPicker'
 import styles from './Chat.module.css'
 
 export default function ChatPanel({ messages, isLoading, onSend }) {
@@ -13,10 +14,13 @@ export default function ChatPanel({ messages, isLoading, onSend }) {
   return (
     <div className={styles.panel}>
       <div className={styles.panelHeader}>
-        <svg className={styles.panelHeaderIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-        <span className={styles.panelHeaderTitle}>Chat</span>
+        <div className={styles.panelHeaderLeft}>
+          <svg className={styles.panelHeaderIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span className={styles.panelHeaderTitle}>Chat</span>
+        </div>
+        <ModelPicker />
       </div>
       <div className={styles.messages}>
         {messages.length === 0 && !isLoading && (
