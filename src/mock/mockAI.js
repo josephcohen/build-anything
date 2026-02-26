@@ -292,45 +292,160 @@ const templates = {
   },
 
   default: {
-    text: "I've created a starter template for your app! It has a clean header, main content area, and footer. Tell me more about what you'd like to build and I'll customize it.",
+    text: "Here's a music streaming app! It has a now-playing hero with animated gradients, curated playlists, a trending tracks list, and a persistent player bar at the bottom. Tell me more about what you'd like to change!",
     html: `<!DOCTYPE html>
 <html>
 <head><style>
+  @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+  @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+  @keyframes eq1 { 0%,100%{height:8px} 50%{height:20px} }
+  @keyframes eq2 { 0%,100%{height:16px} 50%{height:6px} }
+  @keyframes eq3 { 0%,100%{height:12px} 50%{height:22px} }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, sans-serif; background: #f9fafb; min-height: 100vh; display: flex; flex-direction: column; }
-  header { background: white; padding: 16px 24px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 18px; }
-  nav a { color: #6b7280; font-size: 14px; margin-left: 16px; text-decoration: none; }
-  main { flex: 1; padding: 32px 24px; max-width: 600px; margin: 0 auto; width: 100%; }
-  .hero { text-align: center; padding: 40px 0; }
-  .hero h2 { font-size: 28px; margin-bottom: 8px; }
-  .hero p { color: #6b7280; margin-bottom: 24px; }
-  .btn { background: #1a1a1a; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block; text-decoration: none; }
-  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 32px; }
-  .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-  .card h3 { font-size: 15px; margin-bottom: 4px; }
-  .card p { font-size: 13px; color: #6b7280; }
-  footer { text-align: center; padding: 16px; color: #9ca3af; font-size: 12px; border-top: 1px solid #e5e7eb; }
+  body { font-family: -apple-system, sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; padding-bottom: 80px; }
+  .hero { padding: 36px 24px 32px; background: linear-gradient(135deg, #667eea, #764ba2, #f857a6, #ff5858); background-size: 300% 300%; animation: gradientShift 8s ease infinite; position: relative; overflow: hidden; }
+  .hero::after { content:''; position: absolute; inset: 0; background: linear-gradient(transparent 40%, #0a0a0a); }
+  .hero-content { position: relative; z-index: 1; }
+  .hero .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); margin-bottom: 12px; }
+  .hero h1 { font-size: 28px; font-weight: 800; line-height: 1.1; margin-bottom: 4px; letter-spacing: -0.5px; }
+  .hero .artist { font-size: 15px; color: rgba(255,255,255,0.8); margin-bottom: 16px; }
+  .hero-controls { display: flex; align-items: center; gap: 12px; }
+  .play-btn { width: 48px; height: 48px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .play-btn::after { content:''; display:block; width:0; height:0; border-style:solid; border-width:8px 0 8px 14px; border-color:transparent transparent transparent #0a0a0a; margin-left: 2px; }
+  .shuffle-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; backdrop-filter: blur(10px); }
+  .shuffle-btn svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 2; }
+  .eq { display: flex; align-items: flex-end; gap: 3px; height: 22px; margin-left: auto; }
+  .eq span { width: 3px; border-radius: 2px; background: rgba(255,255,255,0.8); }
+  .eq span:nth-child(1) { animation: eq1 1.2s ease infinite; }
+  .eq span:nth-child(2) { animation: eq2 0.8s ease infinite; }
+  .eq span:nth-child(3) { animation: eq3 1s ease infinite; }
+  .eq span:nth-child(4) { animation: eq1 0.9s ease infinite 0.2s; }
+  .section { padding: 24px 24px 0; }
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .section-head h2 { font-size: 18px; font-weight: 700; }
+  .section-head a { font-size: 12px; color: #888; text-decoration: none; font-weight: 600; }
+  .playlists { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+  .playlists::-webkit-scrollbar { display: none; }
+  .playlist { flex-shrink: 0; width: 140px; cursor: pointer; }
+  .playlist-art { width: 140px; height: 140px; border-radius: 12px; margin-bottom: 8px; position: relative; overflow: hidden; }
+  .playlist-art .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.15); opacity: 0; transition: opacity 0.2s; }
+  .playlist:hover .overlay { opacity: 1; }
+  .playlist h3 { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .playlist p { font-size: 11px; color: #666; }
+  .tracks { display: flex; flex-direction: column; gap: 2px; }
+  .track { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: background 0.15s; }
+  .track:hover { background: rgba(255,255,255,0.06); }
+  .track-num { width: 20px; font-size: 13px; color: #555; text-align: center; font-weight: 500; }
+  .track-art { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; }
+  .track-info { flex: 1; min-width: 0; }
+  .track-info h4 { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track-info span { font-size: 12px; color: #666; }
+  .track-dur { font-size: 12px; color: #555; font-variant-numeric: tabular-nums; }
+  .track-menu { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: #555; font-size: 16px; border-radius: 50%; }
+  .player { position: fixed; bottom: 0; left: 0; right: 0; height: 72px; background: rgba(18,18,18,0.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; padding: 0 20px; gap: 14px; z-index: 100; }
+  .player-art { width: 44px; height: 44px; border-radius: 8px; flex-shrink: 0; background: linear-gradient(135deg, #667eea, #764ba2); }
+  .player-info { flex: 1; min-width: 0; }
+  .player-info h4 { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .player-info span { font-size: 11px; color: #666; }
+  .player-controls { display: flex; align-items: center; gap: 16px; }
+  .p-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: none; background: none; cursor: pointer; }
+  .p-btn svg { width: 18px; height: 18px; fill: #999; }
+  .p-play { width: 36px; height: 36px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
+  .p-play::after { content:''; display:block; width:0; height:0; border-style:solid; border-width:6px 0 6px 10px; border-color:transparent transparent transparent #0a0a0a; margin-left: 1px; }
+  .progress { position: absolute; top: -2px; left: 0; right: 0; height: 3px; background: rgba(255,255,255,0.08); }
+  .progress-bar { width: 35%; height: 100%; background: linear-gradient(90deg, #667eea, #f857a6); border-radius: 0 2px 2px 0; }
 </style></head>
 <body>
-  <header>
-    <h1>My App</h1>
-    <nav><a href="#">Home</a><a href="#">About</a><a href="#">Contact</a></nav>
-  </header>
-  <main>
-    <div class="hero">
-      <h2>Welcome!</h2>
-      <p>This is your starting template. Describe what you want to build!</p>
-      <a class="btn" href="#">Get Started</a>
+  <div class="hero">
+    <div class="hero-content">
+      <div class="label">Now Playing</div>
+      <h1>Midnight City</h1>
+      <div class="artist">M83 &mdash; Hurry Up, We're Dreaming</div>
+      <div class="hero-controls">
+        <div class="play-btn"></div>
+        <div class="shuffle-btn"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></div>
+        <div class="eq"><span></span><span></span><span></span><span></span></div>
+      </div>
     </div>
-    <div class="cards">
-      <div class="card"><h3>Feature 1</h3><p>Describe your first feature here.</p></div>
-      <div class="card"><h3>Feature 2</h3><p>Describe your second feature here.</p></div>
-      <div class="card"><h3>Feature 3</h3><p>Describe your third feature here.</p></div>
-      <div class="card"><h3>Feature 4</h3><p>Describe your fourth feature here.</p></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2>Made for You</h2><a href="#">See all</a></div>
+    <div class="playlists">
+      <div class="playlist">
+        <div class="playlist-art" style="background: linear-gradient(135deg, #f093fb, #f5576c);"><div class="overlay"></div></div>
+        <h3>Synthwave Dreams</h3><p>42 tracks</p>
+      </div>
+      <div class="playlist">
+        <div class="playlist-art" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"><div class="overlay"></div></div>
+        <h3>Deep Focus</h3><p>60 tracks</p>
+      </div>
+      <div class="playlist">
+        <div class="playlist-art" style="background: linear-gradient(135deg, #43e97b, #38f9d7);"><div class="overlay"></div></div>
+        <h3>Morning Energy</h3><p>35 tracks</p>
+      </div>
+      <div class="playlist">
+        <div class="playlist-art" style="background: linear-gradient(135deg, #fa709a, #fee140);"><div class="overlay"></div></div>
+        <h3>Golden Hour</h3><p>28 tracks</p>
+      </div>
+      <div class="playlist">
+        <div class="playlist-art" style="background: linear-gradient(135deg, #a18cd1, #fbc2eb);"><div class="overlay"></div></div>
+        <h3>Late Night Chill</h3><p>51 tracks</p>
+      </div>
     </div>
-  </main>
-  <footer>Built with Build Anything</footer>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><h2>Trending</h2><a href="#">See all</a></div>
+    <div class="tracks">
+      <div class="track">
+        <span class="track-num">1</span>
+        <div class="track-art" style="background: linear-gradient(135deg, #ff9a56, #ff6f3c);"></div>
+        <div class="track-info"><h4>Blinding Lights</h4><span>The Weeknd</span></div>
+        <span class="track-dur">3:20</span>
+        <span class="track-menu">&middot;&middot;&middot;</span>
+      </div>
+      <div class="track">
+        <span class="track-num">2</span>
+        <div class="track-art" style="background: linear-gradient(135deg, #a78bfa, #7c3aed);"></div>
+        <div class="track-info"><h4>Levitating</h4><span>Dua Lipa</span></div>
+        <span class="track-dur">3:23</span>
+        <span class="track-menu">&middot;&middot;&middot;</span>
+      </div>
+      <div class="track">
+        <span class="track-num">3</span>
+        <div class="track-art" style="background: linear-gradient(135deg, #34d399, #059669);"></div>
+        <div class="track-info"><h4>As It Was</h4><span>Harry Styles</span></div>
+        <span class="track-dur">2:47</span>
+        <span class="track-menu">&middot;&middot;&middot;</span>
+      </div>
+      <div class="track">
+        <span class="track-num">4</span>
+        <div class="track-art" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);"></div>
+        <div class="track-info"><h4>Heat Waves</h4><span>Glass Animals</span></div>
+        <span class="track-dur">3:58</span>
+        <span class="track-menu">&middot;&middot;&middot;</span>
+      </div>
+      <div class="track">
+        <span class="track-num">5</span>
+        <div class="track-art" style="background: linear-gradient(135deg, #f472b6, #ec4899);"></div>
+        <div class="track-info"><h4>drivers license</h4><span>Olivia Rodrigo</span></div>
+        <span class="track-dur">4:02</span>
+        <span class="track-menu">&middot;&middot;&middot;</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="player">
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="player-art"></div>
+    <div class="player-info"><h4>Midnight City</h4><span>M83</span></div>
+    <div class="player-controls">
+      <div class="p-btn"><svg viewBox="0 0 24 24"><path d="M19 20L9 12l10-8v16z"/><rect x="5" y="4" width="2" height="16"/></svg></div>
+      <div class="p-play"></div>
+      <div class="p-btn"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4z"/><rect x="17" y="4" width="2" height="16"/></svg></div>
+    </div>
+  </div>
 </body>
 </html>`
   }

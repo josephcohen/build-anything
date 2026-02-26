@@ -2,16 +2,24 @@ import { useState } from 'react'
 import styles from './Layout.module.css'
 
 const LAYOUT_OPTIONS = [
-  { key: 'tabs', label: 'Tab Bar' },
+  { key: 'top-tabs', label: 'Top Tabs' },
+  { key: 'tabs', label: 'Bottom Tabs' },
   { key: 'swipe', label: 'Swipe' },
   { key: 'sheet', label: 'Bottom Sheet' },
 ]
 
 function LayoutIcon({ type }) {
+  if (type === 'top-tabs') {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="8" x2="21" y2="8"/><line x1="12" y1="3" x2="12" y2="8"/>
+      </svg>
+    )
+  }
   if (type === 'tabs') {
     return (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="18" x2="21" y2="18"/><line x1="9" y1="18" x2="9" y2="21"/><line x1="15" y1="18" x2="15" y2="21"/>
+        <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="18" x2="21" y2="18"/><line x1="12" y1="18" x2="12" y2="21"/>
       </svg>
     )
   }
@@ -24,7 +32,7 @@ function LayoutIcon({ type }) {
   }
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="9" y1="12" x2="15" y2="12"/>
+      <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/>
     </svg>
   )
 }
@@ -32,8 +40,10 @@ function LayoutIcon({ type }) {
 export default function MobileLayoutSwitcher({ currentLayout, onChangeLayout }) {
   const [open, setOpen] = useState(false)
 
+  const needsBottomOffset = currentLayout === 'tabs'
+
   return (
-    <div className={`${styles.layoutSwitcher} ${currentLayout === 'sheet' ? styles.layoutSwitcherSheet : ''}`}>
+    <div className={`${styles.layoutSwitcher} ${needsBottomOffset ? '' : styles.layoutSwitcherSheet}`}>
       {open && (
         <div className={styles.fabMenu}>
           {LAYOUT_OPTIONS.map(opt => (

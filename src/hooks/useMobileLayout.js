@@ -1,14 +1,14 @@
 import { useState, useCallback } from 'react'
 
 const STORAGE_KEY = 'build-anything-mobile-layout'
-const LAYOUTS = ['tabs', 'swipe', 'sheet']
+const LAYOUTS = ['top-tabs', 'tabs', 'swipe', 'sheet']
 
 function loadLayout() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved && LAYOUTS.includes(saved)) return saved
   } catch {}
-  return 'tabs'
+  return 'top-tabs'
 }
 
 export function useMobileLayout() {

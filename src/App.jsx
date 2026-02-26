@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Routes, Route, useParams, useNavigate } from 'react-router-dom'
 import Header from './components/Shared/Header'
 import DesktopLayout from './components/Layout/DesktopLayout'
+import MobileTopTabs from './components/Layout/MobileTopTabs'
 import MobileTabBar from './components/Layout/MobileTabBar'
 import MobileSwipe from './components/Layout/MobileSwipe'
 import MobileSheet from './components/Layout/MobileSheet'
@@ -61,6 +62,14 @@ function BuilderView({ project, updateProject, createProject }) {
   if (isMobile) {
     return (
       <>
+        {layout === 'top-tabs' && (
+          <MobileTopTabs
+            messages={messages}
+            isLoading={isLoading}
+            onSend={sendMessage}
+            html={html}
+          />
+        )}
         {layout === 'tabs' && (
           <MobileTabBar
             messages={messages}
